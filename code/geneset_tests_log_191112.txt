@@ -1,0 +1,91 @@
+campbell2017_lvl1
+WARNING: ignoring environment value of R_HOME
+here() starts at /nfsdata/projects/jonatan/pub-perslab/19-BMI-brain-geneset_tests
+Loading required package: Matrix
+Loading required package: magrittr
+Loading required package: parallel
+running geneset test for campbell2017_lvl1
+Loading required package: devtools
+geneset test done for campbell2017_lvl1!
+
+real	0m4.905s
+user	0m2.840s
+sys	0m0.433s
+campbell2017_lvl2
+WARNING: ignoring environment value of R_HOME
+here() starts at /nfsdata/projects/jonatan/pub-perslab/19-BMI-brain-geneset_tests
+Loading required package: Matrix
+Loading required package: magrittr
+Loading required package: parallel
+running geneset test for campbell2017_lvl2
+Loading required package: devtools
+geneset test done for campbell2017_lvl2!
+
+real	0m4.489s
+user	0m4.042s
+sys	0m0.340s
+chen2017
+WARNING: ignoring environment value of R_HOME
+here() starts at /nfsdata/projects/jonatan/pub-perslab/19-BMI-brain-geneset_tests
+Loading required package: Matrix
+Loading required package: magrittr
+Loading required package: parallel
+running geneset test for chen2017
+Loading required package: devtools
+geneset test done for chen2017!
+
+real	0m3.377s
+user	0m3.012s
+sys	0m0.320s
+moffitt2018
+WARNING: ignoring environment value of R_HOME
+here() starts at /nfsdata/projects/jonatan/pub-perslab/19-BMI-brain-geneset_tests
+Loading required package: Matrix
+Loading required package: magrittr
+Loading required package: parallel
+running geneset test for moffitt2018
+Loading required package: devtools
+geneset test done for moffitt2018!
+
+real	0m5.992s
+user	0m5.560s
+sys	0m0.370s
+mousebrain
+WARNING: ignoring environment value of R_HOME
+here() starts at /nfsdata/projects/jonatan/pub-perslab/19-BMI-brain-geneset_tests
+Loading required package: Matrix
+Loading required package: magrittr
+Loading required package: parallel
+running geneset test for mousebrain
+Loading required package: devtools
+geneset test done for mousebrain!
+
+real	0m17.584s
+user	0m16.558s
+sys	0m0.796s
+romanov2017
+WARNING: ignoring environment value of R_HOME
+here() starts at /nfsdata/projects/jonatan/pub-perslab/19-BMI-brain-geneset_tests
+Loading required package: Matrix
+Loading required package: magrittr
+Loading required package: parallel
+running geneset test for romanov2017
+Loading required package: devtools
+geneset test done for romanov2017!
+
+real	0m3.598s
+user	0m3.153s
+sys	0m0.358s
+tabula_muris
+WARNING: ignoring environment value of R_HOME
+here() starts at /nfsdata/projects/jonatan/pub-perslab/19-BMI-brain-geneset_tests
+Loading required package: Matrix
+Loading required package: magrittr
+Loading required package: parallel
+running geneset test for tabula_muris
+Loading required package: devtools
+geneset test done for tabula_muris!
+
+real	0m7.554s
+user	0m6.906s
+sys	0m0.596s
