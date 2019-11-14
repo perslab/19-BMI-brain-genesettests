@@ -3,7 +3,7 @@
 
 MAT_ES_DIR=/projects/jonatan/pub-perslab/timshel-bmicelltypes2019/out/es
 PREFIX_RUN=run2
-DIR_OUT=/projects/jonatan/pub-perslab/19-BMI-brain-geneset_tests/output/
+DIR_OUT=/projects/jonatan/pub-perslab/19-BMI-brain-genesettests/output/
 PATH_GENESET=/projects/jonatan/pub-perslab/19-BMI-brain-genesettests/data/BMI_rareMendelianVariants_combined.RDS
 TESTUSE=wilcoxon
 ALTERNATIVE=two.sided
