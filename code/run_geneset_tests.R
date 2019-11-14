@@ -46,7 +46,7 @@ option_list <- list(
   make_option("--prefixRun", type="character",
               help = "run prefix for output [default %default]"),
   make_option("--dirOut", type="character", default = here("output"),
-              help = "output path [default %default]"),
+              help = "output directory [default %default]"),
   make_option("--path_vec_geneset", type="character", default=here("data", "BMI_rareMendelianVariants_combined.RDS"),
               help = "Provide path to gene sets saved as a list of character vectors in an RData or RDS object. [default %default]"),
   make_option("--testUse", type="character", default="fishers",
