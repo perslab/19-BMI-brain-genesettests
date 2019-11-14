@@ -93,6 +93,7 @@ randomSeed = opt$randomSeed
 require("Matrix")
 require("magrittr")
 require("parallel")
+if (testUse=="GSEA") require("liger")
 
 ######################################################################
 ########################## LOAD DATA #################################
