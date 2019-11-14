@@ -35,7 +35,7 @@ To reproduce the results from the paper, adjust the file path parameters in `cal
 
 `bash call_run_geneset_tests.sh &> geneset_tests_log_191007.txt`
 
-## Docs
+## Arguments
 
 `Rscript ./code/run_geneset_tests.R --help`
 
