@@ -1,7 +1,7 @@
 #' @title geneset enrichment function tests
 #' @author Jonatan Thompson, Tune Pers lab, rkm916 at ku dot dk
 
-
+require("data.table")
 library("here")
 library("optparse")
 require("Matrix")
@@ -9,12 +9,12 @@ require("magrittr")
 require("parallel")
 require("here")
 
-mat_ES_full = read.csv("/projects/jonatan/pub-perslab/timshel-bmicelltypes2019/out/es/campbell2017_lvl2.mu.csv.gz", row.names=1, quote="")
-list_vec_geneset <-readRDS("/projects/jonatan/data/genesets/BMI_rareMendelianVariants_combined.RDS")
+dt_ES_full = fread("/projects/jonatan/pub-perslab/timshel-bmicelltypes2019/out/es/campbell2017_lvl2.mu.csv.gz")
+vec_geneset <-readRDS("/projects/jonatan/data/genesets/BMI_rareMendelianVariants_combined.RDS")
 source(here("code","geneset_enrichment_function.R"))
 
 
-mat_geneScore = mat_ES_full
+df_geneScore = dt_ES_full
 vec_geneset = vec_geneset
 testUse = "wilcoxon"
 alternative="two.sided"
@@ -29,8 +29,8 @@ randomSeed = 12345
 
 
 mat_wilcoxon_twosided_analyt <- fnc_geneset_test(
-  mat_geneScore = mat_ES_full,
-  vec_geneset = list_vec_geneset[[1]],
+  df_geneScore = dt_ES_full,
+  vec_geneset = vec_geneset,
   testUse = "wilcoxon",
   alternative="two.sided",
   empPval=F,#T,
@@ -45,7 +45,7 @@ mat_wilcoxon_twosided_analyt <- fnc_geneset_test(
 
 # Fishers 0.75 empirical, greater
 mat_fishers0.75cutoff_emp <- fnc_geneset_test(
-  mat_geneScore = mat_ES_full,
+  df_geneScore = dt_ES_full,
   vec_geneset = list_vec_geneset[[1]],
   testUse = "fishers",
   alternative="greater",
@@ -61,7 +61,7 @@ mat_fishers0.75cutoff_emp <- fnc_geneset_test(
 
 # Fishers 0.75 empirical, greater
 mat_fishers0.75cutoff_analyt<- fnc_geneset_test(
-  mat_geneScore = mat_ES_full,
+  df_geneScore = dt_ES_full,
   vec_geneset = list_vec_geneset[[1]],
   testUse = "fishers",
   alternative="greater",
@@ -76,7 +76,7 @@ mat_fishers0.75cutoff_analyt<- fnc_geneset_test(
 
 # Fishers topNgenes analytical, greater
 mat_fishers100cutoff_analyt <- fnc_geneset_test(
-  mat_geneScore = mat_ES_full,
+  df_geneScore = dt_ES_full,
   vec_geneset = list_vec_geneset[[1]],
   testUse = "fishers",
   alternative="greater",
@@ -91,7 +91,7 @@ mat_fishers100cutoff_analyt <- fnc_geneset_test(
 
 # Fishers topNgenes analytical, less
 mat_fishers100cutoff_analyt <- fnc_geneset_test(
-  mat_geneScore = mat_ES_full,
+  df_geneScore = dt_ES_full,
   vec_geneset = list_vec_geneset[[1]],
   testUse = "fishers",
   alternative="less",
@@ -106,7 +106,7 @@ mat_fishers100cutoff_analyt <- fnc_geneset_test(
 
 # wilcoxon analytical greater
 mat_wilcoxon_greater_analyt <- fnc_geneset_test(
-  mat_geneScore = mat_ES_full,
+  df_geneScore = dt_ES_full,
   vec_geneset = list_vec_geneset[[1]],
   testUse = "wilcoxon",
   alternative="greater",
@@ -121,7 +121,7 @@ mat_wilcoxon_greater_analyt <- fnc_geneset_test(
 
 # wilcoxon analytical less
 mat_wilcoxon_less_analyt <- fnc_geneset_test(
-  mat_geneScore = mat_ES_full,
+  df_geneScore = dt_ES_full,
   vec_geneset = list_vec_geneset[[1]],
   testUse = "wilcoxon",
   alternative="less",
@@ -136,7 +136,7 @@ mat_wilcoxon_less_analyt <- fnc_geneset_test(
 
 # wilcoxon analytical, two-sided
 mat_wilcoxon_twosided_analyt <- fnc_geneset_test(
-  mat_geneScore = mat_ES_full,
+  df_geneScore = dt_ES_full,
   vec_geneset = list_vec_geneset[[1]],
   testUse = "wilcoxon",
   alternative="two.sided",
@@ -152,7 +152,7 @@ mat_wilcoxon_twosided_analyt <- fnc_geneset_test(
 
 # wilcoxon empirical two-sided
 mat_wilcoxon_twosided_emp <- fnc_geneset_test(
-  mat_geneScore = mat_ES_full,
+  df_geneScore = dt_ES_full,
   vec_geneset = list_vec_geneset[[1]],
   testUse = "wilcoxon",
   alternative="two.sided",
@@ -167,7 +167,7 @@ mat_wilcoxon_twosided_emp <- fnc_geneset_test(
 
 # t.test empirical nRep = 50, two-sided
 mat_t.test_twosided_emp <- fnc_geneset_test(
-  mat_geneScore = mat_ES_full,
+  df_geneScore = dt_ES_full,
   vec_geneset = list_vec_geneset[[1]],
   testUse = "t.test",
   alternative="two.sided",
@@ -182,7 +182,7 @@ mat_t.test_twosided_emp <- fnc_geneset_test(
 
 # GSEA empirical
 mat_GSEA_twosided_emp <- fnc_geneset_test(
-  mat_geneScore = mat_ES_full,
+  df_geneScore = dt_ES_full,
   vec_geneset = list_vec_geneset[[1]],
   testUse = "GSEA",
   alternative="two.sided",
@@ -197,7 +197,7 @@ mat_GSEA_twosided_emp <- fnc_geneset_test(
 
 ## Review results
 
-vec_mat <- vec_mat[!vec_mat %in% c("mat_ES_full", "mat_geneScore")]
+vec_mat <- vec_mat[!vec_mat %in% c("dt_ES_full", "df_geneScore")]
 
 mat_meanCor <- sapply(vec_mat, function(mat) {
   sapply(vec_mat, function(othermat) {

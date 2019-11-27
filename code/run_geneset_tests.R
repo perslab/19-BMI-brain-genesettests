@@ -1,7 +1,7 @@
 #' @title run geneset enrichment tests
 #' @author Jonatan Thompson, Tune Pers lab, rkm916 at ku dot dk
 #' @usage run the script from terminal to call fnc_geneset_test() with the parameters provided
-#' @example Rscript run_geneset_tests.R --path_mat_geneScore ${MAT_ES_DIR}/${DATASET}.mu.csv.gz \
+#' @example Rscript run_geneset_tests.R --path_df_geneScore ${MAT_ES_DIR}/${DATASET}.mu.csv.gz \
 #'                                      --prefixData ${DATASET} \
 #'                                      --prefixRun ${PREFIX_RUN} \
 #'                                      --dirOut ${DIR_OUT} \
@@ -35,7 +35,7 @@ source(file=here("perslab-sc-library","utility_functions.R"))
 ######################################################################
 
 option_list <- list(
-  make_option("--path_mat_geneScore", type="character",
+  make_option("--path_df_geneScore", type="character",
               help = "Path to matrix with genes in rows and some grouping value, such as cell type, in columns [default %default]"),
   make_option("--prefixData", type="character",
               help = "data prefix for output [default %default]"),
@@ -50,7 +50,7 @@ option_list <- list(
   make_option("--alternative", type="character", default=c("two-sided", "greater","less"),
               help = "Which tails of the distribution to consider when computing p-values for rejecting the null hypothesis [default %default]"),
   make_option("--path_vec_genesBackground", type="character", default= NULL,
-              help = "Path to a custom background. By default the script uses the row names of mat_geneScore [default %default]"),
+              help = "Path to a custom background. By default the script uses the row names of df_geneScore [default %default]"),
   make_option("--fishersCutoff", type="numeric", default=NULL,
               help = "An absolute gene weight lower threshold at which to cut off genes to include in a fisher's test [default %default]"),
   make_option("--fishersTopNgenes", type="integer", default= NULL,
@@ -70,7 +70,7 @@ option_list <- list(
 opt <- parse_args(OptionParser(option_list=option_list))
 
 
-path_mat_geneScore <- opt$path_mat_geneScore
+path_df_geneScore <- opt$path_df_geneScore
 prefixData <- opt$prefixData
 prefixRun <- opt$prefixRun
 dirOut <- opt$dirOut
@@ -89,7 +89,7 @@ randomSeed = opt$randomSeed
 ######################################################################
 ######################### REMAINING PACKAGES #########################
 ######################################################################
-
+require("data.table")
 require("Matrix")
 require("magrittr")
 require("parallel")
@@ -100,7 +100,8 @@ if (testUse=="GSEA") require("liger")
 ######################################################################
 
 # load gene set(s)#
-mat_geneScore <-  read.csv(path_mat_geneScore, header = T, quote = "", row.names = 1, stringsAsFactors = F)
+#df_geneScore <-  read.csv(path_df_geneScore, header = T, quote = "", row.names = 1, stringsAsFactors = F)
+df_geneScore <- fread(path_df_geneScore)
 vec_geneset <- readRDS(path_vec_geneset)
 vec_genesBackground <- if (!is.null(path_vec_genesBackground)) load_obj(path_vec_genesBackground) else NULL
 
@@ -111,7 +112,7 @@ vec_genesBackground <- if (!is.null(path_vec_genesBackground)) load_obj(path_vec
 message(paste0("running geneset test for ", prefixData))
 
 df_out <- fnc_geneset_test(
-  mat_geneScore = mat_geneScore,
+  df_geneScore = df_geneScore,
   vec_geneset = vec_geneset,
   testUse = testUse,
   alternative=alternative,
@@ -124,9 +125,11 @@ df_out <- fnc_geneset_test(
   nCores = nCores,
   randomSeed = randomSeed)
 
-df_out <- cbind(rownames(df_out), df_out)
-colnames(df_out)[1] <- "cell_type"
-rownames(df_out) <- NULL
+dt_out <- data.table("cell_type"=rownames(df_out),
+                     df_out)
+
+#colnames(df_out)[1] <- "cell_type"
+#rownames(df_out) <- NULL
 
 ######################################################################
 ########################### SAVE OUTPUT ##############################
@@ -134,6 +137,7 @@ rownames(df_out) <- NULL
 
 flagDate <- substr(gsub("-","",as.character(Sys.Date())),3,1000)
 
-saveMeta(savefnc=write.csv, x=df_out, file = gzfile(paste0(dirOut, prefixData, "_", prefixRun, "_", testUse, "_genetestOuts_", flagDate,".csv.gz")), quote = F, row.names = F)
+saveMeta(savefnc=fwrite, x=dt_out, file = paste0(dirOut, prefixData, "_", prefixRun, "_", testUse, "_genetestOuts_", flagDate,".csv"))
+system2(command = "gzip", args = paste0(dirOut, prefixData, "_", prefixRun, "_", testUse, "_genetestOuts_", flagDate,".csv"))
 
 message(paste0("geneset test done for ", prefixData), "!")

@@ -2,7 +2,7 @@
 #' @author Jonatan Thompson, Tune Pers lab, rkm916 at ku dot dk
 
 # define geneset test function
-fnc_geneset_test <- function(mat_geneScore,
+fnc_geneset_test <- function(df_geneScore,
                             vec_geneset,
                             testUse,
                             alternative = c("two.sided", "less", "greater"),
@@ -16,7 +16,7 @@ fnc_geneset_test <- function(mat_geneScore,
                             randomSeed = 12345L) {
 #' @usage Run one of a selection of statistical tests for gene set enrichment on a matrix of gene weights.
 #' Generate empirical p-values.
-#' @example list_genesetResults <- fnc_geneset_test(mat_geneScore = mat_geneScore,
+#' @example list_genesetResults <- fnc_geneset_test(df_geneScore = df_geneScore,
 #'                                        vec_geneset = vec_geneset,
 #'                                        testUse = "fishers",
 #'                                        alternative = "greater",
@@ -27,14 +27,14 @@ fnc_geneset_test <- function(mat_geneScore,
 #'                                        nCores = 10,
 #'                                        randomSeed = 12345,
 #'                                        vec_genesBackground = NULL)
-#' @param mat_geneScore Gene score matrix, or type that can be coerced to a matrix, with gene names in the first column and grouping variable column names
+#' @param df_geneScore Gene score data.frame or data.table with gene names in the first column (rownames are discarded!) and gouping variable column names
 #' @param vec_geneset geneset, human (ensembl or symbol). Character vector
 #' @param testUse geneset test to use, one of 'fishers', 't.test', 'wilcoxon', 'GSEA'.
 #' @param alternative which tails to return in the statistical test. Must be one of "two.sided", "less", "greater". "two.sided" sums the tails above the
 #' value of the statistic and below minus the absolute value of the statistic
 #' @param empPval compute empirical p-values? Boolean, default if (testUse==GSEA) TRUE else FALSE
 #' @param nRep number of samples of NULL distribution for empirical p-values. Integer, default 10000L
-#' @param vec_genesBackground custom gene background, human (ensembl or symbol). Character vector. If NULL (default) use all mat_geneScore rownames
+#' @param vec_genesBackground custom gene background, human (ensembl or symbol). Character vector. If NULL (default) use all df_geneScore rownames
 #' @param fishersCutoff numeric. if testUse=="fishers", fishersCutoff sets the cutoff for gene scores to include.  If fishersTopNgenes is given, must be NULL
 #' @param fishersTopNgenes integer if testUse=="fishers", fishersTopNgenes sets the number of genes to include after sorting by descending gene score. If fishersCutoff is given, must be NULL
 #' @param doPar use parallel computation? Uses 'FORK' clusters from the parallel package. Highly recommended for wilcoxon and GSEA in particular. Boolean, default TRUE.
@@ -56,7 +56,7 @@ fnc_geneset_test <- function(mat_geneScore,
   ######################## CHECK INPUTS ################################
   ######################################################################
 
-  stopifnot(!is.na(as.matrix(mat_geneScore)),
+  stopifnot(!is.na(as.matrix(df_geneScore)),
             typeof(vec_geneset)=="character",
             testUse %in% c('fishers', 't.test', 'wilcoxon', 'GSEA'),
             length(alternative)==1,
@@ -70,7 +70,7 @@ fnc_geneset_test <- function(mat_geneScore,
             !is.na(as.integer(randomSeed)))
 
   stopifnot(alternative %in% c("greater", "less", "two.sided"))
-  if (!is.null(fishersTopNgenes)) stopifnot(fishersTopNgenes <= nrow(mat_geneScore))
+  if (!is.null(fishersTopNgenes)) stopifnot(fishersTopNgenes <= nrow(df_geneScore))
 
   if (testUse=="fishers") stopifnot(!is.null(fishersCutoff) | !is.null(fishersTopNgenes))
   if (testUse=="fishers") if (alternative=="two.sided") stop("Fisher's test requires alternative to be 'less' or 'greater'")
@@ -90,17 +90,23 @@ fnc_geneset_test <- function(mat_geneScore,
   ######################################################################
 
   # get background genes
-  if (is.null(vec_genesBackground)) vec_genesBackground <- rownames(mat_geneScore)
+  if (is.null(vec_genesBackground)) vec_genesBackground <- df_geneScore[[1]]
 
   # remove NAs in geneset
   vec_geneset <- vec_geneset[!is.na(vec_geneset)]
 
-  # CONVERT GENE WEIGHT MATRIX TO LIST OF NAMED VECTORS
-  list_vec_geneWeight <- lapply("X"=mat_geneScore, FUN = function(vec_geneWeight) {
-    names(vec_geneWeight) <- rownames(mat_geneScore)
-    vec_geneWeight <- sort(vec_geneWeight, decreasing = T)
-    return(vec_geneWeight)
+  # CONVERT GENE WEIGHT MATRIX TO LIST OF VECTORS
+
+  df_geneScore %>% as.data.table %>% '['(,-1) %>% as.list -> list_vec_geneWeight
+  list_vec_geneWeight <- lapply(list_vec_geneWeight, function(vec_geneWeight) {
+    names(vec_geneWeight) <- df_geneScore[[1]]
+    sort(vec_geneWeight,decreasing=T)
   })
+  # list_vec_geneWeight <- lapply("X"=df_geneScore, FUN = function(vec_geneWeight) { # this looks risky - what if df_geneScore were a matrix? would probably fail
+  #   names(vec_geneWeight) <- rownames(df_geneScore)
+  #   vec_geneWeight <- sort(vec_geneWeight, decreasing = T)
+  #   return(vec_geneWeight)
+  # })
 
   # Fisher's: cut off gene weight vectors
   if (testUse=="fishers") {
