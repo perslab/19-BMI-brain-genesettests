@@ -12,8 +12,8 @@ Run one of a selection of statistical tests for gene set enrichment on a matrix 
 4. install `renv`: `ìnstall.packages("renv")`
 5. install R package dependencies for the code: `renv::restore()`. If this fails, install the packages manually using the R command `ìnstall.packages()`. See the full list of packages as well as R version under 'R session info' below.
 6. quit R: `quit("no")`  
-7. add paths to the data, test and other parameters in `call_run_geneset_tests.sh` 
-8. run the analysis: `bash call_run_geneset_tests.sh`
+7. add paths to the data, test and other parameters in `call_run_geneset_tests_celltypes_vs_BMI.sh` 
+8. run the analysis: `bash call_run_geneset_tests_celltypes_vs_BMI.sh`
 
 ## Input
 
@@ -24,16 +24,16 @@ Takes a gene x annotation table of weights, where the first column contains gene
 outputs a csv file with a row for each column in the input table and the following columns:
 
 * statistic: if applicable, test statistics
-* parameter: if applicable, parameter values (e.g. for t.test degrees of freedom. NB: For  GSEA, the edge value.)
-* alternative: the parameter provided, e.g. "greater" or "two.sided".
+* parameter: if applicable, parameter values (e.g. for `t.test` degrees of freedom. NB: For  `GSEA`, the edge value.)
+* alternative: the parameter provided, e.g. `greater` or `two.sided`.
 * p.value: **unadjusted** p-values
 * p.value_emp: **unadjusted** empirical p-values. If not computed, NAs
 
 ## Example
 
-To reproduce the results from the paper, adjust the file path parameters in `calL_run_geneset_tests.sh` and leave the other parameters as they are, then 
+To reproduce the results from the paper, adjust the file path parameters in `calL_run_geneset_tests_celltypes_vs_BMI.sh` and leave the other parameters as they are, then 
 
-`bash call_run_geneset_tests.sh &> geneset_tests_log_191007.txt`
+`call_run_geneset_tests_celltypes_vs_BMI.sh`
 
 ## Arguments
 
@@ -41,8 +41,8 @@ To reproduce the results from the paper, adjust the file path parameters in `cal
 
 ## Note
 
-* empirical p-values can be impractically slow especially for the wilcoxon and wilcoxon test 
-* the GSEA function uses the [liger](https://rdrr.io/cran/liger/man/gsea.html) package, which computes p-values by permuting gene labels on the input weights. This is faster than the original GSEA algorithm but may introduce false positives when testing against genesets where some genes are co-expressed.
+* empirical p-values can be impractically slow especially for the `t.test` and `wilcox.test` 
+* the `GSEA` function uses the [liger](https://rdrr.io/cran/liger/man/gsea.html) package, which computes p-values by permuting gene labels on the input weights. This is faster than the original GSEA algorithm but may introduce false positives when testing against genesets where some genes are co-expressed.
 
 ## R session info
 
