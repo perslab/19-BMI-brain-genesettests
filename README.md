@@ -29,11 +29,13 @@ outputs a csv file with a row for each column in the input table and the followi
 * p.value: **unadjusted** p-values
 * p.value_emp: **unadjusted** empirical p-values. If not computed, NAs
 
-## Example
+## Run cell type versus rare/mendelian variant tests
 
-To reproduce the results from the paper, adjust the file path parameters in `calL_run_geneset_tests_celltypes_vs_BMI.sh` and leave the other parameters as they are, then 
+To reproduce the results from the paper, adjust the file path parameters in `calL_run_geneset_tests_celltypes_vs_BMI.sh` and leave the other parameters as they are, then `bash call_run_geneset_tests_celltypes_vs_BMI.sh`
 
-`call_run_geneset_tests_celltypes_vs_BMI.sh`
+## Run cell type versus WGCNA module tests
+
+Adjust the file path parameters in `calL_run_geneset_tests_celltypes_vs_modules.sh` and leave the other parameters as they are, then `bash call_run_geneset_tests_celltypes_vs_modules.sh`
 
 ## Arguments
 
