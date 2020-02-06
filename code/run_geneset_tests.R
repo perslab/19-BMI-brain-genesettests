@@ -127,13 +127,13 @@ fun <- function(vec_geneset, geneset_name) {
     nCores = nCores,
     randomSeed = randomSeed)
 
-  dt_out <- data.table(
-    "geneset_name" = geneset_name,
-    "cell_type"=rownames(df_out),
-    df_out)
+  # dt_out <- data.table(
+  #   "geneset_name" = geneset_name,
+  #   "cell_type"=rownames(df_out),
+  #   df_out)
 }
 
-list_dt_out <-  if (!doPar) {
+list_dt_out <-  if (doPar) {
   safeParallel(fun = fun, list_iterable = list("vec_geneset" = list_vec_genesets,
                                                geneset_name = names(list_vec_genesets)),
                simplify = F,
@@ -151,8 +151,7 @@ if (length(list_dt_out)>1) {
 } else {
   dt_out <- list_dt_out[[1]]
 }
-#colnames(df_out)[1] <- "cell_type"
-#rownames(df_out) <- NULL
+
 
 ######################################################################
 ########################### SAVE OUTPUT ##############################
