@@ -5,7 +5,7 @@
 #'                                      --prefixData ${DATASET} \
 #'                                      --prefixRun ${PREFIX_RUN} \
 #'                                      --dirOut ${DIR_OUT} \
-#'                                      --path_vec_geneset ${PATH_GENESET} \
+#'                                      --path_list_vec_genesets ${PATH_GENESET} \
 #'                                      --testUse ${TESTUSE} \
 #'                                      --alternative ${ALTERNATIVE} \
 #'                                      --empPval ${EMPPVAL} \
@@ -21,6 +21,7 @@
 #require("devtools") # for devtools::session_info()
 library("here")
 library("optparse")
+library("broom")
 #require("liger") # only needed if performing GSEA test
 
 ######################################################################
@@ -43,8 +44,8 @@ option_list <- list(
               help = "run prefix for output [default %default]"),
   make_option("--dirOut", type="character", default = here("output"),
               help = "output directory [default %default]"),
-  make_option("--path_vec_geneset", type="character", default=here("data", "BMI_rareMendelianVariants_combined.RDS"),
-              help = "Provide path to gene sets saved as a list of character vectors in an RData or RDS object. [default %default]"),
+  make_option("--path_list_vec_genesets", type="character", default=here("data", "BMI_rareMendelianVariants_combined.RDS"),
+              help = "Provide path to gene sets saved as a **named** list of character vectors in an RData or RDS object. [default %default]"),
   make_option("--testUse", type="character", default="fishers",
               help = "type of enrichment test: one of 'fishers', 't.test', 'wilcoxon', 'GSEA' [default %default]"),
   make_option("--alternative", type="character", default=c("two-sided", "greater","less"),
@@ -74,7 +75,7 @@ path_df_geneScore <- opt$path_df_geneScore
 prefixData <- opt$prefixData
 prefixRun <- opt$prefixRun
 dirOut <- opt$dirOut
-path_vec_geneset <- opt$path_vec_geneset
+path_list_vec_genesets <- opt$path_list_vec_genesets
 testUse = opt$testUse
 alternative = opt$alternative
 path_vec_genesBackground <- opt$path_vec_genesBackground
@@ -102,7 +103,7 @@ if (testUse=="GSEA") require("liger")
 # load gene set(s)#
 #df_geneScore <-  read.csv(path_df_geneScore, header = T, quote = "", row.names = 1, stringsAsFactors = F)
 df_geneScore <- fread(path_df_geneScore)
-vec_geneset <- readRDS(path_vec_geneset)
+list_vec_genesets <- readRDS(path_list_vec_genesets)
 vec_genesBackground <- if (!is.null(path_vec_genesBackground)) load_obj(path_vec_genesBackground) else NULL
 
 ######################################################################
@@ -111,23 +112,45 @@ vec_genesBackground <- if (!is.null(path_vec_genesBackground)) load_obj(path_vec
 
 message(paste0("running geneset test for ", prefixData))
 
-df_out <- fnc_geneset_test(
-  df_geneScore = df_geneScore,
-  vec_geneset = vec_geneset,
-  testUse = testUse,
-  alternative=alternative,
-  empPval=empPval,
-  nRep=nRep,
-  vec_genesBackground = vec_genesBackground,
-  fishersCutoff = fishersCutoff,
-  fishersTopNgenes = fishersTopNgenes,
-  doPar = doPar,
-  nCores = nCores,
-  randomSeed = randomSeed)
+fun <- function(vec_geneset, geneset_name) {
+  df_out <- fnc_geneset_test(
+    df_geneScore = df_geneScore,
+    vec_geneset = vec_geneset,
+    testUse = testUse,
+    alternative=alternative,
+    empPval=empPval,
+    nRep=nRep,
+    vec_genesBackground = vec_genesBackground,
+    fishersCutoff = fishersCutoff,
+    fishersTopNgenes = fishersTopNgenes,
+    doPar = doPar,
+    nCores = nCores,
+    randomSeed = randomSeed)
 
-dt_out <- data.table("cell_type"=rownames(df_out),
-                     df_out)
+  dt_out <- data.table(
+    "geneset_name" = geneset_name,
+    "cell_type"=rownames(df_out),
+    df_out)
+}
 
+list_dt_out <-  if (!doPar) {
+  safeParallel(fun = fun, list_iterable = list("vec_geneset" = list_vec_genesets,
+                                               geneset_name = names(list_vec_genesets)),
+               simplify = F,
+               timeout = 600,
+               n_cores = 20)
+} else {
+  mapply(FUN = fun,
+         vec_geneset = list_vec_genesets,
+         geneset_name = names(list_vec_genesets),
+         SIMPLIFY=F)
+}
+
+if (length(list_dt_out)>1) {
+  dt_out <- Reduce(x=list_dt_out, rbind.data.frame)
+} else {
+  dt_out <- list_dt_out[[1]]
+}
 #colnames(df_out)[1] <- "cell_type"
 #rownames(df_out) <- NULL
 
@@ -138,6 +161,6 @@ dt_out <- data.table("cell_type"=rownames(df_out),
 flagDate <- substr(gsub("-","",as.character(Sys.Date())),3,1000)
 
 saveMeta(savefnc=fwrite, x=dt_out, file = paste0(dirOut, prefixData, "_", prefixRun, "_", testUse, "_genetestOuts_", flagDate,".csv"))
-system2(command = "gzip", args = paste0(dirOut, prefixData, "_", prefixRun, "_", testUse, "_genetestOuts_", flagDate,".csv"))
+system2(command = "gzip", args = c("-f", paste0(dirOut, prefixData, "_", prefixRun, "_", testUse, "_genetestOuts_", flagDate,".csv")))
 
 message(paste0("geneset test done for ", prefixData), "!")

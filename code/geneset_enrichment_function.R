@@ -129,64 +129,55 @@ fnc_geneset_test <- function(df_geneScore,
       n = length(vec_genesBackground)-m  # number of black balls in the urn
       k = length(vec_geneset) # number of balls drawn from the urn
       q = length(intersect(vec_geneset, names(vec_geneWeight))) # number of white balls drawn without replacement from the urn
-      pval <- tryCatch({
-        phyper(q=q, m=m, n=n, k=k,
-                       lower.tail= if (alternative=="less") T else if (alternative=="greater") F)},
-        error=function(err1) {
-          c("statistic"=NA_real_, "p.value"=NA_real_, "parameter"=NA_integer_)
-        }
-        ) # returns a p-value
-      return(c("statistic"=NA_real_, "parameter"=NA_integer_,"p.value"=pval))
+      pval = phyper(q=q, m=m, n=n, k=k,
+                       lower.tail= if (alternative=="less") T else if (alternative=="greater") F)
+      return(c("test"="fishers","cutOff"=fishersCutoff,"fishersTopNgenes"=fishersTopNgenes, "p.value"=pval))
     }
   } else if (testUse == "t.test") {
     fnc_test <- function(vec_geneWeight,
                              vec_geneset,
                              vec_genesBackground) {
       vec_logicalGeneset <- names(vec_geneWeight) %in% vec_geneset
-      testout <- tryCatch({
-      t.test(x=vec_geneWeight[vec_logicalGeneset],
+      tbbl_out <-broom::tidy(t.test(x=vec_geneWeight[vec_logicalGeneset],
             y=vec_geneWeight[!vec_logicalGeneset],
             alternative= alternative,
-            paired=F,
-            conf.level = 0.95) # returns t.test object
-      }, error= function(err1) {
-        c("statistic"=NA_real_, "p.value"=NA_real_, "parameter"=NA_integer_)
-      })
-    return(c("statistic"=as.numeric(testout[["statistic"]]), "parameter"=testout[["parameter"]],"p.value"= testout[["p.value"]]))
+            conf.level = 0.95))
+      vec_out<-as.character(tbbl_out)
+      names(vec_out)<-colnames(tbbl_out)
+      vec_out
+
+    #return(c("statistic"=as.numeric(testout[["statistic"]]), "parameter"=testout[["parameter"]],"p.value"= testout[["p.value"]]))
     }
   } else if (testUse == "wilcoxon") {
     fnc_test <- function(vec_geneWeight,
                              vec_geneset,
                              vec_genesBackground) {
       vec_logicalGeneset <- names(vec_geneWeight) %in% vec_geneset
-      testout <- tryCatch({
-      wilcox.test(x=vec_geneWeight[vec_logicalGeneset],
+      tbbl_out <- broom::tidy(wilcox.test(x=vec_geneWeight[vec_logicalGeneset],
                   y=vec_geneWeight[!vec_logicalGeneset],
                   alternative= alternative,
-                  conf.level = 0.95) # returns wilcoxon.test obj
-    }, error= function(err1) {
-      c("statistic"=NA_real_, "p.value"=NA_real_, "parameter"=NA_integer_)
-    })
-      return(c("statistic"=as.numeric(testout[["statistic"]]),"parameter"=NA_real_, "p.value"=testout[["p.value"]]))
-    }
+                  conf.int = TRUE,
+                  conf.level = 0.95))
+      vec_out<-as.character(tbbl_out)
+      names(vec_out)<-colnames(tbbl_out)
+      vec_out
+    }#, error= function(err1) {
+     # c("statistic"=NA_real_, "p.value"=NA_real_, "parameter"=NA_integer_)
+    #})
+     # return(c("statistic"=as.numeric(testout[["statistic"]]),"parameter"=NA_real_, "p.value"=testout[["p.value"]]))
+
   } else if (testUse =="GSEA") {
     fnc_test <- function(vec_geneWeight,
                              vec_geneset,
                              vec_genesBackground){
-      gseaout <- tryCatch({
-        # we use bulk gsea on a single geneset because the liger::gsea function
-        # just returns a p-value irrespective of whether sscore is positive or neg
-        mat_gsea <- bulk.gsea(values = vec_geneWeight,
-                              set.list = list(vec_geneset),
-                              rank = F,
-                              n.rand = nRep-1,
-                              mc.cores = if (!doPar) 1 else nCores)
-        }, error = function(err1) {
-          c("statistic"=NA_real_, "p.value"=NA_real_, "parameter"=NA_integer_)
-        })
-      return(c("statistic"=mat_gsea[,"sscore"],
-               "parameter"=mat_gsea[,"edge"],
-               "p.value"=mat_gsea[,"p.val"]))
+      # we use bulk gsea on a single geneset because the liger::gsea function
+      # just returns a p-value irrespective of whether sscore is positive or neg
+      bulk.gsea(values = vec_geneWeight,
+                set.list = list(vec_geneset),
+                rank = F,
+                n.rand = nRep-1,
+                mc.cores = if (!doPar) 1 else nCores)
+
     }
   }
 
@@ -197,10 +188,7 @@ fnc_geneset_test <- function(df_geneScore,
   sapply(list_vec_geneWeight, function(vec_geneWeight) {
     fnc_test(vec_geneset=vec_geneset,
                  vec_geneWeight=vec_geneWeight,
-                 vec_genesBackground=vec_genesBackground)}) %>%
-    t %>%
-    data.frame ->
-    df_testOut
+                 vec_genesBackground=vec_genesBackground)}) %>% t %>% as.data.frame -> df_testOut
 
   ######################################################################
   ######################## GENERATE NULL P VAL #########################
@@ -349,7 +337,7 @@ fnc_geneset_test <- function(df_geneScore,
 
   if (doPar & nCores>1) try(stopCluster(cl))
 
-  df_testOut$alternative <- alternative
+  #df_testOut$alternative <- alternative
 
   return(df_testOut)
 

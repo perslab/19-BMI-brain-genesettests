@@ -3,7 +3,7 @@
 
 
 ES_DIR=/projects/timshel/sc-genetics/timshel-bmicelltypes2019/out/es/
-PREFIX_RUN=run4
+PREFIX_RUN=run5
 DIR_OUT=/projects/jonatan/pub-perslab/19-BMI-brain-genesettests/output/
 PATH_GENESETS=/projects/jonatan/pub-perslab/19-BMI-brain-genesettests/data/list_BMI_rareMendelianVariants_combined.RDS
 TESTUSE=wilcoxon
@@ -14,7 +14,7 @@ DOPAR=FALSE
 NCORES=0
 NREP=0
 
-declare -a DATASETS=("campbell2017_lvl2" "chen2017" "romanov2017" "mousebrain" "moffitt2018" "mikkelsen2019" "kimVMH2019_smartseq" "kimVMH2019_10x")
+declare -a DATASETS=("campbell2017_lvl1" "campbell2017_lvl2" "chen2017" "romanov2017" "mousebrain" "moffitt2018" "mikkelsen2019" "kimVMH2019_smartseq" "kimVMH2019_10x" "tabula_muris")
 
 for (( i=0; i<${#DATASETS[@]}; i++ )); do
 	DATASET=${DATASETS[$i]}
