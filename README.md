@@ -10,9 +10,9 @@ Run one of a selection of statistical tests for gene set enrichment on a matrix 
 2. go to the directory: `cd 19-BMI-brain-genesettests`
 3. start R session: `R`
 4. install `renv`: `ìnstall.packages("renv")`
-5. install R package dependencies for the code: `renv::restore()`. If this fails, install the packages manually using the R command `ìnstall.packages()`. See the full list of packages as well as R version under 'R session info' below.
+5. install R package dependencies for the code: `renv::restore()` or `renv::hydrate()`. If this fails, install the packages manually using the R command `ìnstall.packages()`. See the full list of packages as well as R version under 'R session info' below.
 6. quit R: `quit("no")`  
-7. add paths to the data, test and other parameters in `call_run_geneset_tests_celltypes_vs_BMI.sh` 
+7. add paths to the data, test and any other parameters in `call_run_geneset_tests_celltypes_vs_BMI.sh` 
 8. run the analysis: `bash call_run_geneset_tests_celltypes_vs_BMI.sh`
 
 ## Input
