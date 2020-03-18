@@ -3,9 +3,9 @@
 
 
 ES_DIR=/projects/timshel/sc-genetics/timshel-bmicelltypes2019/out/es/
-PREFIX_RUN=run5
-DIR_OUT=/projects/jonatan/pub-perslab/19-BMI-brain-genesettests/output/
-PATH_GENESETS=/projects/jonatan/pub-perslab/19-BMI-brain-genesettests/data/list_BMI_rareMendelianVariants_combined.RDS
+PREFIX_RUN=run
+DIR_OUT=../output/
+PATH_GENESETS=../data/list_BMI_rareMendelianVariants_combined.RDS
 TESTUSE=wilcoxon
 ALTERNATIVE=greater
 #two.sided

@@ -2,10 +2,10 @@
 # usage: bash call_run_geneset_tests_celltype_vs_modules.sh &> log_genesettests_celltype_vs_modules_191007.txt
 
 
-ES_DIR=/projects/jonatan/pub-perslab/19-BMI-brain-genesettests/data
-PREFIX_RUN=wgcna_modules_run2
-DIR_OUT=/projects/jonatan/pub-perslab/19-BMI-brain-genesettests/output/
-PATH_GENESETS=/projects/jonatan/pub-perslab/19-BMI-brain-genesettests/data/list_vec_WGCNA_modgenes_ENSG.RDS
+ES_DIR=../data
+PREFIX_RUN=run1
+DIR_OUT=../output/
+PATH_GENESETS=..data/list_vec_WGCNA_modgenes_ENSG.RDS
 TESTUSE=wilcoxon
 ALTERNATIVE=greater
 #two.sided
