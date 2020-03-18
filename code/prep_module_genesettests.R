@@ -2,6 +2,7 @@
 library("data.table")
 library("here")
 
+
 # constants
 path_wgcna_geneMod <- "/projects/jonatan/pub-perslab/18-mousebrain/18-mousebrain_7/tables/ClusterName_prior_191127a_cell_cluster_module_genes.csv.gz"
 path_df_ortho <- here("data","gene_annotation.hsapiens_mmusculus_unique_orthologs.GRCh37.ens_v91.txt.gz")
@@ -22,10 +23,10 @@ dt_mapping <- dt_mapping[!is.na(idx_ENSG)]
 idx_ENSG <- idx_ENSG[!is.na(idx_ENSG)]
 
 dt_mapping$ENSG <- dt_ortho$ensembl_gene_id[idx_ENSG]
-  
+
 dt_geneMod$ENSG <- dt_mapping$ENSG[match(dt_geneMod$ensembl, dt_mapping$ENSMUS)]
 
-# pull out module genes as a list of vectors 
+# pull out module genes as a list of vectors
 list_modGenes_ENSG <- lapply(unique(dt_geneMod$module), function(module) {
   vec_mod_ENSG <- dt_geneMod$ENSG[dt_geneMod$module==module]
   vec_mod_ENSG <- vec_mod_ENSG[!is.na(vec_mod_ENSG)]
