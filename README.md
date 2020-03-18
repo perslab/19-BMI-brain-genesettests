@@ -21,13 +21,7 @@ Takes a gene x annotation table of weights, where the first column contains gene
 
 ## Output 
 
-outputs a csv file with a row for each column in the input table and the following columns:
-
-* statistic: if applicable, test statistics
-* parameter: if applicable, parameter values (e.g. for `t.test` degrees of freedom. NB: For  `GSEA`, the edge value.)
-* alternative: the parameter provided, e.g. `greater` or `two.sided`.
-* p.value: **unadjusted** p-values
-* p.value_emp: **unadjusted** empirical p-values. If not computed, NAs
+csv table with output depending on statistical test
 
 ## Run cell type versus rare/mendelian variant tests
 
