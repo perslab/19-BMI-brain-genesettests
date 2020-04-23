@@ -10,8 +10,28 @@ require("parallel")
 require("here")
 
 dt_ES_full = fread("/projects/jonatan/pub-perslab/timshel-bmicelltypes2019/out/es/campbell2017_lvl2.mu.csv.gz")
-vec_geneset <-readRDS("/projects/jonatan/data/genesets/BMI_rareMendelianVariants_combined.RDS")
+list_vec_geneset <-readRDS("/projects/jonatan/pub-perslab/19-BMI-brain-genesettests/data/list_BMI_genesets.RDS")
 source(here("code","geneset_enrichment_function.R"))
+
+
+
+path_df_geneScore = "/projects/jonatan/pub-perslab/timshel-bmicelltypes2019/out/es/campbell2017_lvl2.mu.csv.gz"
+prefixData = "campbell2017lvl2"
+prefixRun = test1
+dirOut = "/projects/jonatan/pub-perslab/19-BMI-brain-genesettests/output/"
+path_list_vec_genesets <- "/projects/jonatan/pub-perslab/19-BMI-brain-genesettests/data/list_BMI_genesets.RDS"
+testUse = "wilcoxon"
+alternative="greater"
+path_vec_genesBackground <- NULL
+fishersCutoff <- NULL
+fishersTopNgenes <- NULL
+empPval <- F
+doPar = F
+nCores = 0
+nRep = 0
+randomSeed =12345
+
+
 
 
 df_geneScore = dt_ES_full

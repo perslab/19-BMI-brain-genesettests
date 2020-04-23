@@ -107,12 +107,20 @@ list_vec_genesets <- readRDS(path_list_vec_genesets)
 vec_genesBackground <- if (!is.null(path_vec_genesBackground)) load_obj(path_vec_genesBackground) else NULL
 
 ######################################################################
+########################## CHECK INPUTS  #############################
+######################################################################
+
+if (is.null(names(list_vec_genesets))){
+  stop("list_vec_genesets entries must be named")
+}
+
+######################################################################
 ########################### RUN TEST #################################
 ######################################################################
 
 message(paste0("running geneset test for ", prefixData))
 
-fun <- function(vec_geneset, geneset_name) {
+fun <- function(vec_geneset) {
   df_out <- fnc_geneset_test(
     df_geneScore = df_geneScore,
     vec_geneset = vec_geneset,
@@ -126,25 +134,16 @@ fun <- function(vec_geneset, geneset_name) {
     doPar = doPar,
     nCores = nCores,
     randomSeed = randomSeed)
-
-  # dt_out <- data.table(
-  #   "geneset_name" = geneset_name,
-  #   "cell_type"=rownames(df_out),
-  #   df_out)
 }
 
-list_dt_out <-  if (doPar) {
-  safeParallel(fun = fun, list_iterable = list("vec_geneset" = list_vec_genesets,
-                                               geneset_name = names(list_vec_genesets)),
-               simplify = F,
-               timeout = 600,
-               n_cores = 20)
-} else {
-  mapply(FUN = fun,
-         vec_geneset = list_vec_genesets,
-         geneset_name = names(list_vec_genesets),
-         SIMPLIFY=F)
-}
+list_df_out <- lapply(FUN = fun,X = list_vec_genesets)
+names(list_df_out) = names(list_vec_genesets)
+
+# add geneset names
+list_dt_out = lapply(names(list_df_out), function(name){
+    df_out = list_df_out[[name]] 
+    data.table("annotation" = rownames(df_out), "geneset_name"=name, df_out)
+  })
 
 if (length(list_dt_out)>1) {
   dt_out <- Reduce(x=list_dt_out, rbind.data.frame)
