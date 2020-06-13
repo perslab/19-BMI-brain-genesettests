@@ -5,7 +5,11 @@ library("openxlsx")
 
 vec_files = dir(here("output"), pattern = "23_genes_wilcoxon_genetestOuts_200613.csv.gz", full.names = T)
 
-dt_out = Reduce(x=lapply(vec_files, fread), f=rbind)
+list_dt = lapply(vec_files, function(filename) {
+  data.table("specificity_id"=gsub(".*/|_BMI_23.*","",filename), fread(filename))
+  })
+
+dt_out = Reduce(x=list_dt, f=rbind)
 
 file.out = here("output", "all_BMI_23_genes_wilcoxon_genetestOuts_200613.csv")
 fwrite(dt_out, file.out)
